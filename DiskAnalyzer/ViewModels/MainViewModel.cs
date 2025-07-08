@@ -5,6 +5,7 @@ using DiskAnalyzer.Models;
 using DiskAnalyzer.Services;
 using Microcharts;
 using SkiaSharp;
+using CommunityToolkit.Maui.Storage;
 
 namespace DiskAnalyzer.ViewModels;
 
@@ -20,13 +21,25 @@ public class MainViewModel : INotifyPropertyChanged
     public ICommand ScanCommand { get; }
     public event PropertyChangedEventHandler PropertyChanged;
     public Chart DiskUsageChart { get; set; }
+    public string SelectedFolderPath { get; set; }
+    public ICommand PickFolderCommand { get; }
 
     public MainViewModel()
     {
+        PickFolderCommand = new Command(async () => await PickFolderAsync());
         ScanCommand = new Command(async () => await ScanAsync());
     }
 
-   
+    private async Task PickFolderAsync()
+    {
+        var result = await FolderPicker.Default.PickAsync();
+        if (result.IsSuccessful)
+        {
+            SelectedFolderPath = result.Folder.Path;
+            OnPropertyChanged(nameof(SelectedFolderPath));
+        }
+    }
+
     private async Task ScanAsync()
     {
         var driveInfo = new DriveInfo("C");
@@ -43,7 +56,13 @@ public class MainViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(FreeSpaceText));
         OnPropertyChanged(nameof(UsedSpaceText));
 
-        var directories = await _scanner.GetDirectoriesWithSizeAsync("C:\\");  // Chemin du disque C
+        if(SelectedFolderPath == null)
+        {
+            SelectedFolderPath = "C:\\";
+        }
+
+        var directories = await _scanner.GetDirectoriesWithSizeAsync(SelectedFolderPath);  // Chemin du disque C ou chemin sélectionné
+        SelectedFolderPath = null; // Réinitialise le chemin sélectionné après la récupération
         Folders.Clear();
         // Ajoute chaque dossier à la collection
         foreach (var folder in directories)
