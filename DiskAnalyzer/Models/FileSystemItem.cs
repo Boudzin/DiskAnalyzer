@@ -9,4 +9,6 @@ public class FileSystemItem
     public List<FileSystemItem> Children { get; set; } = new();
 
     public string SizeDisplay => $"{Size / (1024.0 * 1024.0):F2} MB";
+
+
 }

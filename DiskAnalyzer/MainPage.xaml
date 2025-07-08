@@ -1,6 +1,7 @@
 ﻿<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:DiskAnalyzer.ViewModels"
+             xmlns:charts="clr-namespace:Microcharts.Maui;assembly=Microcharts.Maui"
              x:Class="DiskAnalyzer.MainPage"
              Title="Analyse Disque">
 
@@ -17,7 +18,7 @@
             </VerticalStackLayout>
         </Frame>
         <Button Text="Scanner le disque C:" Command="{Binding ScanCommand}" />
-        <CollectionView ItemsSource="{Binding Items}">
+        <CollectionView ItemsSource="{Binding Folders}">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
                     <StackLayout Padding="5">
