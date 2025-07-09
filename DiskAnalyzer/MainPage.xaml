@@ -4,33 +4,363 @@
              xmlns:charts="clr-namespace:Microcharts.Maui;assembly=Microcharts.Maui"
              xmlns:converters="clr-namespace:DiskAnalyzer.Converters"
              x:Class="DiskAnalyzer.MainPage"
-             Title="Analyse Disque">
+             Title="🔍 DiskSpace Analyzer">
 
     <ContentPage.BindingContext>
         <vm:MainViewModel />
     </ContentPage.BindingContext>
 
-    <StackLayout Padding="10">
-        <Frame BorderColor="Gray" CornerRadius="10" Padding="10" BackgroundColor="#F0F0F0">
-            <VerticalStackLayout>
-                <Label Text="{Binding TotalSizeText}" FontAttributes="Bold" FontSize="16"/>
-                <Label Text="{Binding FreeSpaceText}" FontSize="14"/>
-                <Label Text="{Binding UsedSpaceText}" FontSize="14"/>
-            </VerticalStackLayout>
-        </Frame>
-        <Button Text="Scanner le disque C:" Command="{Binding ScanCommand}" />
-        <Button Text="Choisir un dossier" Command="{Binding PickFolderCommand}" />
-        <Label Text="{Binding SelectedFolderPath}" FontSize="12" LineBreakMode="CharacterWrap"/>
-        <Button Text="Scanner le dossier" Command="{Binding ScanCommand}" IsEnabled="{Binding SelectedFolderPath, Converter={StaticResource NullOrEmptyToBoolConverter}}" />
-        <CollectionView ItemsSource="{Binding Folders}">
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <StackLayout Padding="5">
-                        <Label Text="{Binding Name}" FontAttributes="Bold"/>
-                        <Label Text="{Binding SizeDisplay}" FontSize="12"/>
+    <ScrollView>
+        <Grid BackgroundColor="#F5F5F5" Padding="16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header avec titre et bouton -->
+            <Grid Grid.Row="0" Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+             
+            </Grid>
+
+            <!-- Section d'analyse -->
+            <Frame Grid.Row="1" BackgroundColor="White" CornerRadius="8" Padding="16" HasShadow="True" Margin="0,0,0,16">
+                <StackLayout>
+                    <Label Text="Analyser l'espace disque" FontSize="16" FontAttributes="Bold" Margin="0,0,0,8"/>
+                    <Label Text="Sélectionnez un dossier ou disque pour analyser l'utilisation de l'espace" FontSize="14" TextColor="Gray" Margin="0,0,0,12"/>
+
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.Row="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Entry Grid.Column="0" Text="{Binding SelectedFolderPath}" BackgroundColor="#F8F8F8" Margin="0,0,8,0"/>
+                            <Button Grid.Column="1" Text="📁" Command="{Binding PickFolderCommand}" BackgroundColor="Transparent" TextColor="Gray" WidthRequest="40"/>
+                        </Grid>
+
+                        <Grid Grid.Row="1" Margin="0,8,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Button Grid.Column="0" Text="Démarrer l'analyse" Command="{Binding ScanCommand}" BackgroundColor="#007ACC" TextColor="White" FontSize="14" Padding="12,8" Margin="0,0,4,0"/>
+                            <Button Grid.Column="1" Text="Analyser le disque principal" Command="{Binding ScanCommand}" BackgroundColor="#34A853" TextColor="White" FontSize="14" Padding="12,8" Margin="4,0,0,0"/>
+                        </Grid>
+                    </Grid>
+                </StackLayout>
+            </Frame>
+
+            <!-- Statistiques -->
+            <Grid Grid.Row="2" Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Espace total -->
+                <Frame Grid.Column="0" BackgroundColor="White" CornerRadius="8" Padding="12" HasShadow="True" Margin="0,0,4,0">
+                    <StackLayout>
+                        <Grid ColumnSpacing="4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <!-- Icône -->
+                            <Image Grid.Column="0"
+                            Source="discfull.png"
+                            WidthRequest="20"
+                            HeightRequest="20"
+                            VerticalOptions="Center"/>
+
+                            <!-- Texte -->
+                            <Label Grid.Column="1"
+                               Text="Espace total"
+                               FontSize="12"
+                               TextColor="Gray"
+                               VerticalOptions="Center"/>
+                        </Grid>
+                        <Label Text="{Binding TotalSizeText}" FontSize="18" FontAttributes="Bold"/>
+                        <Frame BackgroundColor="#4285F4" CornerRadius="2" HeightRequest="4" Margin="0,4,0,0"/>
                     </StackLayout>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
-    </StackLayout>
+                </Frame>
+
+                <!-- Espace utilisé -->
+                <Frame Grid.Column="1" BackgroundColor="White" CornerRadius="8" Padding="12" HasShadow="True" Margin="4,0,4,0">
+                    <StackLayout>
+                        <Grid ColumnSpacing="4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <!-- Icône -->
+                            <Image Grid.Column="0"
+                            Source="storage.png"
+                            WidthRequest="20"
+                            HeightRequest="20"
+                            VerticalOptions="Center"/>
+
+                            <!-- Texte -->
+                            <Label Grid.Column="1"
+                            Text="Espace utilisé"
+                            FontSize="12"
+                            TextColor="Gray"
+                            VerticalOptions="Center"/>
+                        </Grid>
+                        <Label Text="{Binding FreeSpaceText}" FontSize="18" FontAttributes="Bold"/>
+                        <Frame BackgroundColor="#EA4335" CornerRadius="2" HeightRequest="4" Margin="0,4,0,0"/>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Fichiers analysés -->
+                <Frame Grid.Column="2" BackgroundColor="White" CornerRadius="8" Padding="12" HasShadow="True" Margin="4,0,4,0">
+                    <StackLayout>
+                        <Grid ColumnSpacing="4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <!-- Icône -->
+                            <Image Grid.Column="0"
+                            Source="files.png"
+                            WidthRequest="20"
+                            HeightRequest="20"
+                            VerticalOptions="Center"/>
+
+                            <!-- Texte -->
+                            <Label Grid.Column="1"
+                            Text="Espace libre"
+                            FontSize="12"
+                            TextColor="Gray"
+                            VerticalOptions="Center"/>
+                        </Grid>
+                        <Label Text="{Binding UsedSpaceText}" FontSize="18" FontAttributes="Bold"/>
+                        <Frame BackgroundColor="#34A853" CornerRadius="2" HeightRequest="4" Margin="0,4,0,0"/>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Dossiers -->
+                <Frame Grid.Column="3" BackgroundColor="White" CornerRadius="8" Padding="12" HasShadow="True" Margin="4,0,0,0">
+                    <StackLayout>
+                        <Grid ColumnSpacing="4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <!-- Icône -->
+                            <Image Grid.Column="0"
+                            Source="folder.png"
+                            WidthRequest="20"
+                            HeightRequest="20"
+                            VerticalOptions="Center"/>
+
+                            <!-- Texte -->
+                            <Label Grid.Column="1"
+                            Text="Dossiers"
+                            FontSize="12"
+                            TextColor="Gray"
+                            VerticalOptions="Center"/>
+                        </Grid>
+                        <Label Text="{Binding NumberFoldersText}" FontSize="18" FontAttributes="Bold"/>
+                        <Frame BackgroundColor="#FBBC04" CornerRadius="2" HeightRequest="4" Margin="0,4,0,0"/>
+                    </StackLayout>
+                </Frame>
+            </Grid>
+
+            <!-- Contenu principal -->
+            <Grid Grid.Row="3">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Liste des fichiers -->
+                <Frame Grid.Column="0" BackgroundColor="White" CornerRadius="8" Padding="16" HasShadow="True" Margin="0,0,8,0">
+                    <StackLayout>
+                        <Grid Margin="0,0,0,12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Label Grid.Column="0" Text="Dossiers :" FontSize="16" FontAttributes="Bold"/>
+                            <Button Grid.Column="1" Text="Filtrer" FontSize="12" BackgroundColor="Transparent" TextColor="#007ACC"/>
+                        </Grid>
+
+                        <CollectionView ItemsSource="{Binding Folders}">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Padding="0,8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <ImageButton Grid.Column="0"
+                                        Source="folder.png"
+                                        WidthRequest="20"
+                                        HeightRequest="20"
+                                        VerticalOptions="Center"/>
+                                       
+                                        <StackLayout Grid.Column="1" VerticalOptions="Center">
+                                            <Label Text="{Binding Name}" FontSize="14" FontAttributes="Bold"/>
+                                            <Label Text="{Binding SizeDisplay}" FontSize="12" TextColor="Gray"/>
+                                        </StackLayout>
+                                        <Label Grid.Column="2" Text="{Binding SizeDisplay}" FontSize="14" FontAttributes="Bold" VerticalOptions="Center"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Panneau latéral -->
+                <StackLayout Grid.Column="1">
+                    <!-- Actions rapides -->
+                    <Frame BackgroundColor="White" CornerRadius="8" Padding="16" HasShadow="True" Margin="0,0,0,8">
+                        <StackLayout>
+                            <Label Text="Actions rapides" FontSize="16" FontAttributes="Bold" Margin="0,0,0,12"/>
+
+                            <Grid Margin="0,0,0,8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <ImageButton Grid.Column="0"
+                                Source="delete.png"
+                                WidthRequest="20"
+                                HeightRequest="20"
+                                VerticalOptions="Center"/>
+                                <Label Grid.Column="1" Text="Supprimer les fichiers sélectionnés" FontSize="14" VerticalOptions="Center" Margin="8,0,0,0"/>
+                                <Label Grid.Column="2" Text=">" FontSize="14" TextColor="Gray" VerticalOptions="Center"/>
+                            </Grid>
+
+                            <Grid Margin="0,0,0,8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <ImageButton Grid.Column="0"
+                                Source="folder.png"
+                                WidthRequest="20"
+                                HeightRequest="20"
+                                VerticalOptions="Center"/>
+                                <Label Grid.Column="1" Text="Ouvrir dans l'explorateur" FontSize="14" VerticalOptions="Center" Margin="8,0,0,0"/>
+                                <Label Grid.Column="2" Text=">" FontSize="14" TextColor="Gray" VerticalOptions="Center"/>
+                            </Grid>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <ImageButton Grid.Column="0"
+                                Source="export.png"
+                                WidthRequest="20"
+                                HeightRequest="20"
+                                VerticalOptions="Center"/>
+                                <Label Grid.Column="1" Text="Exporter le rapport" FontSize="14" VerticalOptions="Center" Margin="8,0,0,0"/>
+                                <Label Grid.Column="2" Text=">" FontSize="14" TextColor="Gray" VerticalOptions="Center"/>
+                            </Grid>
+                        </StackLayout>
+                    </Frame>
+
+                    <!-- Types de fichiers -->
+                    <Frame BackgroundColor="White" CornerRadius="8" Padding="16" HasShadow="True" Margin="0,0,0,8">
+                        <StackLayout>
+                            <Label Text="Types de fichiers" FontSize="16" FontAttributes="Bold" Margin="0,0,0,12"/>
+
+                            <Grid Margin="0,0,0,8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Ellipse Grid.Column="0" Fill="#FF5722" WidthRequest="12" HeightRequest="12" VerticalOptions="Center"/>
+                                <Label Grid.Column="1" Text="Vidéos" FontSize="14" VerticalOptions="Center" Margin="8,0,0,0"/>
+                                <Label Grid.Column="2" Text="45%" FontSize="14" TextColor="Gray" VerticalOptions="Center"/>
+                            </Grid>
+
+                            <Grid Margin="0,0,0,8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Ellipse Grid.Column="0" Fill="#4CAF50" WidthRequest="12" HeightRequest="12" VerticalOptions="Center"/>
+                                <Label Grid.Column="1" Text="Images" FontSize="14" VerticalOptions="Center" Margin="8,0,0,0"/>
+                                <Label Grid.Column="2" Text="23%" FontSize="14" TextColor="Gray" VerticalOptions="Center"/>
+                            </Grid>
+
+                            <Grid Margin="0,0,0,8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Ellipse Grid.Column="0" Fill="#FFC107" WidthRequest="12" HeightRequest="12" VerticalOptions="Center"/>
+                                <Label Grid.Column="1" Text="Documents" FontSize="14" VerticalOptions="Center" Margin="8,0,0,0"/>
+                                <Label Grid.Column="2" Text="18%" FontSize="14" TextColor="Gray" VerticalOptions="Center"/>
+                            </Grid>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Ellipse Grid.Column="0" Fill="#9C27B0" WidthRequest="12" HeightRequest="12" VerticalOptions="Center"/>
+                                <Label Grid.Column="1" Text="Archives" FontSize="14" VerticalOptions="Center" Margin="8,0,0,0"/>
+                                <Label Grid.Column="2" Text="14%" FontSize="14" TextColor="Gray" VerticalOptions="Center"/>
+                            </Grid>
+                        </StackLayout>
+                    </Frame>
+
+                    <!-- Analyses récentes -->
+                    <Frame BackgroundColor="White" CornerRadius="8" Padding="16" HasShadow="True">
+                        <StackLayout>
+                            <Label Text="Analyses récentes" FontSize="16" FontAttributes="Bold" Margin="0,0,0,12"/>
+                            <CollectionView ItemsSource="{Binding RecentSearches}">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,0,0,8">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackLayout Grid.Column="0">
+                                                <Label Text="{Binding Path}" FontSize="14" FontAttributes="Bold"/>
+                                                <Label Text="{Binding Date, StringFormat='Le {0:dd MMM yyyy HH:mm}'}" FontSize="12" TextColor="Gray"/>
+                                            </StackLayout>
+                                            <Button Grid.Column="1" Text="🔄" FontSize="12" BackgroundColor="Transparent" TextColor="Gray" WidthRequest="30" HeightRequest="30"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </StackLayout>
+                    </Frame>
+                </StackLayout>
+            </Grid>
+        </Grid>
+    </ScrollView>
 </ContentPage>

@@ -14,9 +14,12 @@ public class MainViewModel : INotifyPropertyChanged
     public ObservableCollection<FileSystemItem> Items { get; set; } = new();
     public ObservableCollection<FileSystemItem> Folders { get; set; } = new ObservableCollection<FileSystemItem>();
     private readonly DiskScannerService _scanner = new DiskScannerService();
+    private Dictionary<DateTime, string> dicoLastSearch = new Dictionary<DateTime, string>();
     public string TotalSizeText { get; set; }
     public string FreeSpaceText { get; set; }
     public string UsedSpaceText { get; set; }
+    public int NumberFolders { get; set; }
+    public string NumberFoldersText { get; set; }
 
     public ICommand ScanCommand { get; }
     public event PropertyChangedEventHandler PropertyChanged;
@@ -28,6 +31,16 @@ public class MainViewModel : INotifyPropertyChanged
     {
         PickFolderCommand = new Command(async () => await PickFolderAsync());
         ScanCommand = new Command(async () => await ScanAsync());
+    }
+
+    public IEnumerable<RecentSearch> RecentSearches
+    {
+        get
+        {
+            return dicoLastSearch
+                .OrderByDescending(kv => kv.Key)
+                .Select(kv => new RecentSearch { Date = kv.Key, Path = kv.Value });
+        }
     }
 
     private async Task PickFolderAsync()
@@ -56,14 +69,19 @@ public class MainViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(FreeSpaceText));
         OnPropertyChanged(nameof(UsedSpaceText));
 
-        if(SelectedFolderPath == null)
+        if (SelectedFolderPath == null)
         {
             SelectedFolderPath = "C:\\";
         }
 
         var directories = await _scanner.GetDirectoriesWithSizeAsync(SelectedFolderPath);  // Chemin du disque C ou chemin sélectionné
+        dicoLastSearch.Add(DateTime.Now, SelectedFolderPath);
+        OnPropertyChanged(nameof(RecentSearches));
         SelectedFolderPath = null; // Réinitialise le chemin sélectionné après la récupération
         Folders.Clear();
+        NumberFolders = directories.Count;
+        NumberFoldersText = $"{NumberFolders} dossiers";
+        OnPropertyChanged(nameof(NumberFoldersText));
         // Ajoute chaque dossier à la collection
         foreach (var folder in directories)
         {
@@ -75,5 +93,4 @@ public class MainViewModel : INotifyPropertyChanged
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
-
 }
