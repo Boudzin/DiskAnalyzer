@@ -59,7 +59,7 @@
                             </Grid.ColumnDefinitions>
 
                             <Button Grid.Column="0" Text="Démarrer l'analyse" Command="{Binding ScanCommand}" BackgroundColor="#007ACC" TextColor="White" FontSize="14" Padding="12,8" Margin="0,0,4,0"/>
-                            <Button Grid.Column="1" Text="Analyser le disque principal" Command="{Binding ScanCommand}" BackgroundColor="#34A853" TextColor="White" FontSize="14" Padding="12,8" Margin="4,0,0,0"/>
+                            <Button Grid.Column="1" Text="Analyser le disque principal" Command="{Binding ScanCommandAnalyzeMainDisk}" BackgroundColor="#34A853" TextColor="White" FontSize="14" Padding="12,8" Margin="4,0,0,0"/>
                         </Grid>
                     </Grid>
                 </StackLayout>
