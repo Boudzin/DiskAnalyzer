@@ -22,6 +22,7 @@ public class MainViewModel : INotifyPropertyChanged
     public string NumberFoldersText { get; set; }
 
     public ICommand ScanCommand { get; }
+    public ICommand ScanCommandAnalyzeMainDisk { get; }
     public event PropertyChangedEventHandler PropertyChanged;
     public Chart DiskUsageChart { get; set; }
     public string SelectedFolderPath { get; set; }
@@ -30,7 +31,8 @@ public class MainViewModel : INotifyPropertyChanged
     public MainViewModel()
     {
         PickFolderCommand = new Command(async () => await PickFolderAsync());
-        ScanCommand = new Command(async () => await ScanAsync());
+        ScanCommand = new Command(async () => await ScanAsync(true));
+        ScanCommandAnalyzeMainDisk = new Command(async () => await ScanAsync(false));
     }
 
     public IEnumerable<RecentSearch> RecentSearches
@@ -53,9 +55,12 @@ public class MainViewModel : INotifyPropertyChanged
         }
     }
 
-    private async Task ScanAsync()
+    private async Task ScanAsync(bool selectedPath)
     {
         var driveInfo = new DriveInfo("C");
+        #if ANDROID
+            driveInfo = new DriveInfo(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath);
+        #endif
         long totalSize = driveInfo.TotalSize;
         long freeSpace = driveInfo.AvailableFreeSpace;
         long usedSpace = totalSize - freeSpace;
@@ -68,12 +73,22 @@ public class MainViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(TotalSizeText));
         OnPropertyChanged(nameof(FreeSpaceText));
         OnPropertyChanged(nameof(UsedSpaceText));
-
-        if (SelectedFolderPath == null)
-        {
-            SelectedFolderPath = "C:\\";
-        }
-
+        #if WINDOWS
+            if (!selectedPath)
+            {
+                SelectedFolderPath = "C:\\";
+            }
+        #elif MACCATALYST
+                    if (!selectedPath)
+                    {
+                        SelectedFolderPath = "/"; // Chemin racine pour macOS
+                    }
+        #elif ANDROID
+                    if (!selectedPath)
+                    {
+                        SelectedFolderPath = Android.OS.Environment.ExternalStorageDirectory.AbsolutePath; // Chemin du stockage externe
+                    }
+        #endif
         var directories = await _scanner.GetDirectoriesWithSizeAsync(SelectedFolderPath);  // Chemin du disque C ou chemin sélectionné
         dicoLastSearch.Add(DateTime.Now, SelectedFolderPath);
         OnPropertyChanged(nameof(RecentSearches));
