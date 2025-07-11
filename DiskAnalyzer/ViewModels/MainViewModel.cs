@@ -30,6 +30,8 @@ public class MainViewModel : INotifyPropertyChanged
     public ICommand PickFolderCommand { get; }
     public ICommand OpenFolderAnalyzed { get;}
     public ICommand DeleteFolderAnalyzed { get; }
+    public Page Page { get; set; }
+
 
     public MainViewModel()
     {
@@ -37,21 +39,28 @@ public class MainViewModel : INotifyPropertyChanged
         ScanCommand = new Command(async () => await ScanAsync(true));
         ScanCommandAnalyzeMainDisk = new Command(async () => await ScanAsync(false));
         OpenFolderAnalyzed = new Command(OpenFolder);
-        DeleteFolderAnalyzed = new Command(DeleteFolder);
+        DeleteFolderAnalyzed = new Command(async () => await DeleteFolderAsync());
     }
 
-    private void DeleteFolder()
+    private async Task DeleteFolderAsync()
     {
-    #if WINDOWS
-        RecentSearch? lastSearch = RecentSearches.FirstOrDefault();
-        if (lastSearch != null && Directory.Exists(lastSearch.Path))
+#if WINDOWS
+    RecentSearch? lastSearch = RecentSearches.FirstOrDefault();
+    if (lastSearch != null && Directory.Exists(lastSearch.Path))
+    {
+        bool confirm = await Page.DisplayAlert(
+            "Confirmation",
+            $"Voulez-vous vraiment supprimer le dossier suivant ?\n\n{lastSearch.Path}",
+            "Supprimer",
+            "Annuler");
+
+        if (confirm)
         {
             try
             {
-                Directory.Delete(lastSearch.Path, true); // true = suppression récursive
+                Directory.Delete(lastSearch.Path, true);
                 Console.WriteLine($"Dossier supprimé : {lastSearch.Path}");
 
-                // Nettoyage des données côté appli
                 dicoLastSearch.Remove(dicoLastSearch.First(kv => kv.Value == lastSearch.Path).Key);
                 Folders.Clear();
                 NumberFoldersText = "0 dossier";
@@ -60,11 +69,17 @@ public class MainViewModel : INotifyPropertyChanged
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Erreur lors de la suppression : {ex.Message}");
+                await Page.DisplayAlert("Erreur", $"Une erreur est survenue : {ex.Message}", "OK");
             }
         }
-    #endif
     }
+    else
+    {
+        await Page.DisplayAlert("Erreur", "Aucun dossier valide à supprimer.", "OK");
+    }
+#endif
+    }
+
 
     private void OpenFolder()
     {

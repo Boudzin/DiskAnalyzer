@@ -8,6 +8,10 @@ namespace DiskAnalyzer
         {
             InitializeComponent();
             BindingContext = new MainViewModel();
+            if (BindingContext is MainViewModel vm)
+            {
+                vm.Page = this;
+            }
         }
     }
 }
