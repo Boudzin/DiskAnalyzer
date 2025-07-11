@@ -260,6 +260,7 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <ImageButton Grid.Column="0"
+                                Command="{Binding OpenFolderAnalyzed}"
                                 Source="folder.png"
                                 WidthRequest="20"
                                 HeightRequest="20"

@@ -6,6 +6,7 @@ using DiskAnalyzer.Services;
 using Microcharts;
 using SkiaSharp;
 using CommunityToolkit.Maui.Storage;
+using System.Diagnostics;
 
 namespace DiskAnalyzer.ViewModels;
 
@@ -27,14 +28,35 @@ public class MainViewModel : INotifyPropertyChanged
     public Chart DiskUsageChart { get; set; }
     public string SelectedFolderPath { get; set; }
     public ICommand PickFolderCommand { get; }
+    public ICommand OpenFolderAnalyzed { get;}
 
     public MainViewModel()
     {
         PickFolderCommand = new Command(async () => await PickFolderAsync());
         ScanCommand = new Command(async () => await ScanAsync(true));
         ScanCommandAnalyzeMainDisk = new Command(async () => await ScanAsync(false));
+        OpenFolderAnalyzed = new Command(OpenFolder);
     }
 
+    private void OpenFolder()
+    {
+        RecentSearch? lastSearch = RecentSearches.Last();
+        
+        #if WINDOWS
+            if (RecentSearches.Count() >0 && Directory.Exists(lastSearch.Path))
+            {
+                try
+                {
+                    Process.Start("explorer.exe", lastSearch.Path);
+                }
+                catch (Exception ex)
+                {
+                    // Tu peux logger ou afficher un message ici
+                    Console.WriteLine($"Erreur lors de l'ouverture du dossier : {ex.Message}");
+                }
+            }
+        #endif
+    }
     public IEnumerable<RecentSearch> RecentSearches
     {
         get
@@ -55,6 +77,7 @@ public class MainViewModel : INotifyPropertyChanged
         }
     }
 
+    
     private async Task ScanAsync(bool selectedPath)
     {
         var driveInfo = new DriveInfo("C");
