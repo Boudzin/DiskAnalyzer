@@ -29,6 +29,7 @@ public class MainViewModel : INotifyPropertyChanged
     public string SelectedFolderPath { get; set; }
     public ICommand PickFolderCommand { get; }
     public ICommand OpenFolderAnalyzed { get;}
+    public ICommand DeleteFolderAnalyzed { get; }
 
     public MainViewModel()
     {
@@ -36,6 +37,33 @@ public class MainViewModel : INotifyPropertyChanged
         ScanCommand = new Command(async () => await ScanAsync(true));
         ScanCommandAnalyzeMainDisk = new Command(async () => await ScanAsync(false));
         OpenFolderAnalyzed = new Command(OpenFolder);
+        DeleteFolderAnalyzed = new Command(DeleteFolder);
+    }
+
+    private void DeleteFolder()
+    {
+    #if WINDOWS
+        RecentSearch? lastSearch = RecentSearches.FirstOrDefault();
+        if (lastSearch != null && Directory.Exists(lastSearch.Path))
+        {
+            try
+            {
+                Directory.Delete(lastSearch.Path, true); // true = suppression récursive
+                Console.WriteLine($"Dossier supprimé : {lastSearch.Path}");
+
+                // Nettoyage des données côté appli
+                dicoLastSearch.Remove(dicoLastSearch.First(kv => kv.Value == lastSearch.Path).Key);
+                Folders.Clear();
+                NumberFoldersText = "0 dossier";
+                OnPropertyChanged(nameof(RecentSearches));
+                OnPropertyChanged(nameof(NumberFoldersText));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur lors de la suppression : {ex.Message}");
+            }
+        }
+    #endif
     }
 
     private void OpenFolder()
